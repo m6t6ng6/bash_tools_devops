@@ -8,6 +8,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;94m'
 NC='\033[0m' # no color
 
 print_message() {
@@ -26,9 +27,9 @@ check_tools() {
     local array=("$@")
     for programa in "${array[@]}"; do
         if command -v $programa &>/dev/null; then
-            print_message $GREEN "$programa esta instalado..."
+            print_message $GREEN "\u2714 $programa is installed"
         else
-            print_message $RED "$programa no esta instalado..."
+            print_message $RED "\u2718 $programa is not installed"
             exit 1
         fi
     done
@@ -40,6 +41,28 @@ check_tools() {
 #
 
 ci_cd_info() {
+    # Obtener la última rama en la que se hizo el commit
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+    # Obtener el último commit hecho en la rama actual
+    LAST_COMMIT=$(git log -1 --pretty=format:"%h")
+
+    # Obtener el nombre del autor del último commit
+    AUTHOR=$(git log -1 --pretty=format:"%an")
+
+    # Obtener el correo del autor del último commit
+    EMAIL=$(git log -1 --pretty=format:"%ae")
+
+    declare -A automation_info=(
+        ['AUTOMATION_INFO_1']=$(print_message $GREEN ">>> AUTOMATION: commit ${LAST_COMMIT}")
+        ['AUTOMATION_INFO_2']=$(print_message $YELLOW "on branch ${BRANCH}")
+        ['AUTOMATION_INFO_3']=$(print_message $BLUE "by ${AUTHOR}")
+    )
+
+    echo -e ""
+    echo -e "${automation_info['AUTOMATION_INFO_1']} ${automation_info['AUTOMATION_INFO_2']} ${automation_info['AUTOMATION_INFO_3']}"
+    echo -e ""
+
     # Datos a mostrar (puedes agregar o modificar los campos aquí)
     ERROR="n/a"
     declare -A info=(
@@ -154,5 +177,6 @@ ci_cd_info() {
         ((row_count++))
     done
     print_line_up
+    echo -e
 }
 #############
